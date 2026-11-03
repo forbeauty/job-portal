@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Кабинет работодателя — Публикация вакансий</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f7f7f8; color: #222; }
+        header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-links { display: flex; gap: 10px; }
+        .nav-link { text-decoration: none; color: #333; font-size: 14px; padding: 8px 16px; border-radius: 20px; font-weight: 500; }
+        .nav-link.active { background: #000; color: #fff; }
+        .container { max-width: 1140px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { background: #fff; padding: 24px; border-radius: 12px; border: 1px solid #eef0f2; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        textarea { height: 90px; resize: vertical; }
+        .btn-submit { background: #0070fb; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .item-list { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        .item-card { background: #f9f9fa; padding: 14px; border-radius: 8px; border: 1px solid #e5e5e5; display: flex; justify-content: space-between; align-items: center; }
+        .btn-del { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="display:flex; align-items:center;">
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Ищу работу</a>
+                <a href="employer.html" class="nav-link active">Ищу сотрудника</a>
+            </nav>
+        </div>
+        <div>
+            <span style="font-size:14px; color:#666;">Кабинет компании: <strong>Tech Solutions</strong></span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Секция создания вакансии -->
+        <div class="card">
+            <h2>Разместить новую вакансию</h2>
+            <form id="vacancy-form" style="margin-top:20px;">
+                <div class="form-group">
+                    <label>Название должности</label>
+                    <input type="text" id="title" placeholder="например: Senior Python Developer" required>
+                </div>
+                <div class="form-group">
+                    <label>Категория</label>
+                    <select id="category_id">
+                        <option value="1">IT и Информационные технологии</option>
+                        <option value="2">Продажи и обслуживание</option>
+                        <option value="3">Административный персонал</option>
+                        <option value="4">Маркетинг, реклама</option>
+                        <option value="7">Курьеры / Доставка</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Зарплата (от)</label>
+                    <input type="number" id="salary" placeholder="120000" required>
+                </div>
+                <div class="form-group">
+                    <label>Описание вакансии и требования</label>
+                    <textarea id="description" placeholder="Укажите стек технологий, график и условия работы..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Опубликовать вакансию</button>
+            </form>
+        </div>
+
+        <!-- Секция управления созданными вакансиями и резюме -->
+        <div>
+            <div class="card" style="margin-bottom: 20px;">
+                <h2>Мои активные вакансии</h2>
+                <div id="my-vacancies" class="item-list">Загрузка...</div>
+            </div>
+
+            <div class="card">
+                <h2>Доступные резюме соискателей</h2>
+                <div id="resumes-list" class="item-list">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://127.0.0.1:8000/api';
+
+        async function loadData() {
+            try {
+                // Вакансии
+                const vRes = await fetch(`${API}/vacancies`);
+                const vData = await vRes.json();
+                document.getElementById('my-vacancies').innerHTML = vData.map(v => `
+                    <div class="item-card">
+                        <div>
+                            <strong>${v.title}</strong>
+                            <div style="font-size:12px; color:#666;">от ${v.salary_from ? v.salary_from.toLocaleString() : 0} сом/руб.</div>
+                        </div>
+                        <button class="btn-del" onclick="deleteVacancy(${v.id})">Удалить</button>
+                    </div>
+                `).join('');
+
+                // Резюме
+                const rRes = await fetch(`${API}/resumes`);
+                const rData = await rRes.json();
+                document.getElementById('resumes-list').innerHTML = rData.map(r => `
+                    <div class="item-card">
+                        <div>
+                            <strong>${r.title}</strong>
+                            <div style="font-size:12px; color:#666;">Соискатель #${r.id}</div>
+                        </div>
+                        <button style="background:#28a745; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" onclick="alert('Контакты соискателя открыты!')">Посмотреть</button>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteVacancy(id) {
+            if (confirm('Удалить эту вакансию?')) {
+                await fetch(`${API}/vacancies/${id}`, { method: 'DELETE' });
+                loadData();
+            }
+        }
+
+        document.getElementById('vacancy-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch(`${API}/vacancies`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: document.getElementById('title').value,
+                    category_id: parseInt(document.getElementById('category_id').value),
+                    salary_from: parseInt(document.getElementById('salary').value),
+                    description: document.getElementById('description').value
+                })
+            });
+            document.getElementById('vacancy-form').reset();
+            loadData();
+        });
+
+        loadData();
+    </script>
+</body>
+</html>

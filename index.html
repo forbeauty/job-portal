@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск работы — Соискателям</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f7f7f8; color: #222; }
+        header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-links { display: flex; gap: 10px; }
+        .nav-link { text-decoration: none; color: #333; font-size: 14px; padding: 8px 16px; border-radius: 20px; font-weight: 500; }
+        .nav-link.active { background: #000; color: #fff; }
+        .container { max-width: 1140px; margin: 0 auto; padding: 20px; }
+        .hero { background: #2b303a; color: white; padding: 30px 20px; border-radius: 12px; margin-bottom: 30px; }
+        .stats-counter { display: flex; gap: 30px; margin-top: 15px; }
+        .stat-num { font-size: 22px; font-weight: bold; color: #4da1ff; }
+        
+        .grid-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
+        .cat-card { background: #fff; padding: 16px; border-radius: 10px; border: 1px solid #eef0f2; cursor: pointer; transition: all 0.2s ease; }
+        .cat-card:hover { border-color: #0070fb; transform: translateY(-2px); }
+        .cat-card.selected { border: 2px solid #0070fb; background: #eef6ff; }
+        
+        .vacancies-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn-reset { background: #e0e0e0; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: none; }
+        
+        .vacancies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        .vac-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #eef0f2; display: flex; flex-direction: column; justify-content: space-between; }
+        .vac-title { font-size: 18px; font-weight: 700; color: #0070fb; text-decoration: none; }
+        .btn-apply { background: #2e7d32; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="display:flex; align-items:center;">
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link active">Ищу работу</a>
+                <a href="employer.html" class="nav-link">Ищу сотрудника</a>
+            </nav>
+        </div>
+        <div>
+            <a href="employer.html" style="text-decoration:none; color:#0070fb; font-weight:600;">Разместить вакансию ➔</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Поиск работы по всей стране</h1>
+            <div class="stats-counter">
+                <div><div id="stat-vacancies" class="stat-num">0</div> вакансий</div>
+                <div><div id="stat-companies" class="stat-num">0</div> компаний</div>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom:15px;">Выберите категорию</h2>
+        <div id="categories" class="grid-categories">Загрузка...</div>
+
+        <div class="vacancies-header">
+            <h2 id="vacancies-title">Свежие вакансии</h2>
+            <button id="reset-btn" class="btn-reset" onclick="filterByCategory(null)">Сбросить фильтр ✖</button>
+        </div>
+        
+        <div id="vacancies" class="vacancies-grid">Загрузка вакансий...</div>
+    </div>
+
+    <script>
+        const API = 'http://127.0.0.1:8000/api';
+        let currentCategoryId = null;
+
+        async function init() {
+            try {
+                // Загрузка статистики
+                const sRes = await fetch(`${API}/stats`);
+                const sData = await sRes.json();
+                document.getElementById('stat-vacancies').innerText = sData.vacancies;
+                document.getElementById('stat-companies').innerText = sData.companies;
+
+                // Загрузка категорий
+                const cRes = await fetch(`${API}/categories`);
+                const cData = await cRes.json();
+                document.getElementById('categories').innerHTML = cData.map(c => `
+                    <div class="cat-card" id="cat-${c.id}" onclick="filterByCategory(${c.id}, '${c.name}')">
+                        <h4>${c.name}</h4>
+                        <div style="font-size:13px; color:#777; margin-top:4px;">${c.vacancy_count} вакансий</div>
+                    </div>
+                `).join('');
+
+                // Первоначальная загрузка всех вакансий
+                loadVacancies();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadVacancies(categoryId = null) {
+            const container = document.getElementById('vacancies');
+            container.innerHTML = 'Загрузка вакансий...';
+
+            let url = `${API}/vacancies`;
+            if (categoryId) {
+                url += `?category_id=${categoryId}`;
+            }
+
+            const vRes = await fetch(url);
+            const vData = await vRes.json();
+
+            if (!vData || vData.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; color:#777;">В этой категории пока нет опубликованных вакансий.</p>';
+                return;
+            }
+
+            container.innerHTML = vData.map(v => `
+                <div class="vac-card">
+                    <div>
+                        <a href="#" class="vac-title">${v.title}</a>
+                        <div style="color:#666; font-size:13px; margin:4px 0;">${v.company_name || 'Компания'}</div>
+                        <div style="font-weight:bold; margin-bottom:8px;">от ${v.salary_from ? v.salary_from.toLocaleString() : 0} сом/руб.</div>
+                        <p style="font-size:14px; color:#444;">${v.description}</p>
+                    </div>
+                    <button class="btn-apply" onclick="alert('Отклик отправлен работодателю!')">Откликнуться</button>
+                </div>
+            `).join('');
+        }
+
+        function filterByCategory(id, name = '') {
+            // Сбрасываем выделение у всех категорий
+            document.querySelectorAll('.cat-card').forEach(el => el.classList.remove('selected'));
+            
+            const resetBtn = document.getElementById('reset-btn');
+            const titleEl = document.getElementById('vacancies-title');
+
+            if (id) {
+                currentCategoryId = id;
+                document.getElementById(`cat-${id}`).classList.add('selected');
+                titleEl.innerText = `Вакансии в категории: ${name}`;
+                resetBtn.style.display = 'inline-block';
+                loadVacancies(id);
+            } else {
+                currentCategoryId = null;
+                titleEl.innerText = 'Свежие вакансии';
+                resetBtn.style.display = 'none';
+                loadVacancies();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
