@@ -82,12 +82,12 @@
     </div>
 
     <script>
-        const API = 'http://127.0.0.1:8000/api';
+        const API = 'https://shading-matcher-antitoxic.ngrok-free.dev/api';
 
         async function loadData() {
             try {
                 // Вакансии
-                const vRes = await fetch(`${API}/vacancies`);
+                const vRes = await fetch(`${API}/vacancies`, { headers: { "ngrok-skip-browser-warning": "true" } });
                 const vData = await vRes.json();
                 document.getElementById('my-vacancies').innerHTML = vData.map(v => `
                     <div class="item-card">
@@ -100,7 +100,7 @@
                 `).join('');
 
                 // Резюме
-                const rRes = await fetch(`${API}/resumes`);
+                const rRes = await fetch(`${API}/resumes`, { headers: { "ngrok-skip-browser-warning": "true" } });
                 const rData = await rRes.json();
                 document.getElementById('resumes-list').innerHTML = rData.map(r => `
                     <div class="item-card">
@@ -118,7 +118,10 @@
 
         async function deleteVacancy(id) {
             if (confirm('Удалить эту вакансию?')) {
-                await fetch(`${API}/vacancies/${id}`, { method: 'DELETE' });
+                await fetch(`${API}/vacancies/${id}`, { 
+                    method: 'DELETE',
+                    headers: { "ngrok-skip-browser-warning": "true" }
+                });
                 loadData();
             }
         }
@@ -127,7 +130,10 @@
             e.preventDefault();
             await fetch(`${API}/vacancies`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
                 body: JSON.stringify({
                     title: document.getElementById('title').value,
                     category_id: parseInt(document.getElementById('category_id').value),

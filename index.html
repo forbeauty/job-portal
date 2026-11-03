@@ -64,19 +64,19 @@
     </div>
 
     <script>
-        const API = 'http://127.0.0.1:8000/api';
+        const API = 'https://shading-matcher-antitoxic.ngrok-free.dev/api';
         let currentCategoryId = null;
 
         async function init() {
             try {
                 // Загрузка статистики
-                const sRes = await fetch(`${API}/stats`);
+                const sRes = await fetch(`${API}/stats`, { headers: { "ngrok-skip-browser-warning": "true" } });
                 const sData = await sRes.json();
                 document.getElementById('stat-vacancies').innerText = sData.vacancies;
                 document.getElementById('stat-companies').innerText = sData.companies;
 
                 // Загрузка категорий
-                const cRes = await fetch(`${API}/categories`);
+                const cRes = await fetch(`${API}/categories`, { headers: { "ngrok-skip-browser-warning": "true" } });
                 const cData = await cRes.json();
                 document.getElementById('categories').innerHTML = cData.map(c => `
                     <div class="cat-card" id="cat-${c.id}" onclick="filterByCategory(${c.id}, '${c.name}')">
@@ -101,7 +101,7 @@
                 url += `?category_id=${categoryId}`;
             }
 
-            const vRes = await fetch(url);
+            const vRes = await fetch(url, { headers: { "ngrok-skip-browser-warning": "true" } });
             const vData = await vRes.json();
 
             if (!vData || vData.length === 0) {
@@ -123,7 +123,6 @@
         }
 
         function filterByCategory(id, name = '') {
-            // Сбрасываем выделение у всех категорий
             document.querySelectorAll('.cat-card').forEach(el => el.classList.remove('selected'));
             
             const resetBtn = document.getElementById('reset-btn');
