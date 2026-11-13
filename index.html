@@ -128,9 +128,7 @@
 <header>
     <div class="nav-container">
         <a href="index.html" class="logo">💼 JobPortal</a>
-        <div class="nav-links" id="navAuthArea">
-            <!-- Заполняется через JS -->
-        </div>
+        <div class="nav-links" id="navAuthArea"></div>
     </div>
 </header>
 
@@ -163,23 +161,19 @@
         <button class="tab-btn" id="myProfileTabBtn" style="display:none;" onclick="switchTab('profile', this)">👤 Моё резюме</button>
     </div>
 
-    <!-- Вкладка: Все вакансии -->
     <div id="tab-all">
         <div class="categories" id="categoriesList"></div>
         <div class="grid" id="vacanciesGrid">Загрузка вакансий...</div>
     </div>
 
-    <!-- Вкладка: Избранное -->
     <div id="tab-fav" style="display:none;">
         <div class="grid" id="favGrid"></div>
     </div>
 
-    <!-- Вкладка: Мои отклики соискателя -->
     <div id="tab-apps" style="display:none;">
         <div class="grid" id="myAppsGrid"></div>
     </div>
 
-    <!-- Вкладка: Профиль и резюме соискателя -->
     <div id="tab-profile" style="display:none; max-width: 550px;">
         <div class="card">
             <h3 style="margin-bottom:14px;">Данные вашего резюме</h3>
@@ -263,6 +257,14 @@
     let selectedCategory = null;
     let authMode = "login";
     let applyingVacancyId = null;
+
+    function formatSalary(v) {
+        const raw = v.salary ?? v.salary_from ?? v.salary_min ?? v.wage;
+        if (raw !== null && raw !== undefined && raw !== "" && !isNaN(Number(raw))) {
+            return `${Number(raw).toLocaleString()} сом`;
+        }
+        return "Зарплата по договоренности";
+    }
 
     function showToast(msg) {
         const t = document.getElementById("toast");
@@ -428,6 +430,8 @@
         if (!list.length) { grid.innerHTML = "<p style='color:var(--muted)'>Вакансии не найдены.</p>"; return; }
         grid.innerHTML = list.map(v => {
             const isFav = favorites.includes(v.id);
+            const salaryText = formatSalary(v);
+            const cityText = v.city || v.location || "Бишкек";
             return `
             <div class="card">
                 <div>
@@ -435,13 +439,13 @@
                         <div class="vac-title">${v.title}</div>
                         <button class="btn btn-outline" style="padding:5px 10px;" onclick="toggleFav(${v.id})">${isFav ? '⭐' : '☆'}</button>
                     </div>
-                    <div class="salary">${Number(v.salary).toLocaleString()} сом</div>
+                    <div class="salary">${salaryText}</div>
                     <div class="badges">
                         <span class="badge badge-blue">🏢 ${v.company_name || 'Компания'}</span>
-                        <span class="badge">📍 ${v.city}</span>
+                        <span class="badge">📍 ${cityText}</span>
                         <span class="badge">💻 ${v.work_format || 'Офис'}</span>
                     </div>
-                    <p class="desc">${v.description}</p>
+                    <p class="desc">${v.description || ''}</p>
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="openApplyModal(${v.id}, '${v.title.replace(/'/g, "\\'")}')">Откликнуться</button>
@@ -511,8 +515,8 @@
                         <div class="vac-title">${a.vacancy_title}</div>
                         <span class="status-pill ${stClass}">${a.status}</span>
                     </div>
-                    <div class="salary">${Number(a.salary).toLocaleString()} сом</div>
-                    <div class="badges"><span class="badge">🏢 ${a.company_name}</span><span class="badge">📍 ${a.city}</span></div>
+                    <div class="salary">${formatSalary(a)}</div>
+                    <div class="badges"><span class="badge">🏢 ${a.company_name || 'Компания'}</span><span class="badge">📍 ${a.city || 'Бишкек'}</span></div>
                     <p style="font-size:13px; color:var(--muted);">Ваше письмо: ${a.cover_letter || 'Без сопроводительного письма'}</p>
                 </div>
             </div>`;
