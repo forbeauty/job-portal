@@ -2,150 +2,221 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Кабинет работодателя — Публикация вакансий</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кабинет работодателя — JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: #f7f7f8; color: #222; }
-        header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; }
-        .nav-links { display: flex; gap: 10px; }
-        .nav-link { text-decoration: none; color: #333; font-size: 14px; padding: 8px 16px; border-radius: 20px; font-weight: 500; }
-        .nav-link.active { background: #000; color: #fff; }
-        .container { max-width: 1140px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .card { background: #fff; padding: 24px; border-radius: 12px; border: 1px solid #eef0f2; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-        textarea { height: 90px; resize: vertical; }
-        .btn-submit { background: #0070fb; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .item-list { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
-        .item-card { background: #f9f9fa; padding: 14px; border-radius: 8px; border: 1px solid #e5e5e5; display: flex; justify-content: space-between; align-items: center; }
-        .btn-del { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        :root {
+            --primary: #2563eb; --bg: #f8fafc; --card: #ffffff;
+            --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+            --success: #10b981; --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); }
+        header { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 24px; }
+        .nav { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 20px; font-weight: 700; color: var(--primary); text-decoration: none; }
+        .container { max-width: 1200px; margin: 28px auto; padding: 0 24px; }
+        .layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 24px; }
+        @media (max-width: 850px) { .layout { grid-template-columns: 1fr; } }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 16px; }
+        .form-group { margin-bottom: 13px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px;
+        }
+        .btn { padding: 9px 15px; border-radius: 8px; border: none; font-weight: 500; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; font-weight: 600; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .resume-box { background: #f1f5f9; padding: 12px; border-radius: 8px; margin: 10px 0; font-size: 13px; }
+        #toast { position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: white; padding: 12px 20px; border-radius: 10px; display: none; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div style="display:flex; align-items:center;">
-            <nav class="nav-links">
-                <a href="index.html" class="nav-link">Ищу работу</a>
-                <a href="employer.html" class="nav-link active">Ищу сотрудника</a>
-            </nav>
-        </div>
+<header>
+    <div class="nav">
+        <a href="index.html" class="logo">💼 JobPortal <span style="font-size:13px; color:var(--muted); font-weight:500;">| Панель работодателя</span></a>
         <div>
-            <span style="font-size:14px; color:#666;">Кабинет компании: <strong>Tech Solutions</strong></span>
+            <span id="empNameBadge" style="font-size:14px; font-weight:600; margin-right:12px;"></span>
+            <a href="index.html" class="btn btn-outline">← На главную</a>
         </div>
-    </header>
+    </div>
+</header>
 
-    <div class="container">
-        <!-- Секция создания вакансии -->
-        <div class="card">
-            <h2>Разместить новую вакансию</h2>
-            <form id="vacancy-form" style="margin-top:20px;">
-                <div class="form-group">
-                    <label>Название должности</label>
-                    <input type="text" id="title" placeholder="например: Senior Python Developer" required>
-                </div>
-                <div class="form-group">
-                    <label>Категория</label>
-                    <select id="category_id">
-                        <option value="1">IT и Информационные технологии</option>
-                        <option value="2">Продажи и обслуживание</option>
-                        <option value="3">Административный персонал</option>
-                        <option value="4">Маркетинг, реклама</option>
-                        <option value="7">Курьеры / Доставка</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Зарплата (от)</label>
-                    <input type="number" id="salary" placeholder="120000" required>
-                </div>
-                <div class="form-group">
-                    <label>Описание вакансии и требования</label>
-                    <textarea id="description" placeholder="Укажите стек технологий, график и условия работы..." required></textarea>
-                </div>
-                <button type="submit" class="btn-submit">Опубликовать вакансию</button>
-            </form>
+<div class="container" id="accessDenied" style="display:none; text-align:center; padding:60px 20px;">
+    <div class="card" style="max-width:460px; margin:0 auto;">
+        <h2>Доступ только для работодателей</h2>
+        <p style="color:var(--muted); margin:12px 0 20px;">Пожалуйста, перейдите на главную страницу и войдите в аккаунт с ролью «Работодатель» (например, <b>hr@techcorp.kg</b> / <b>1234</b>).</p>
+        <a href="index.html" class="btn btn-primary">Перейти ко входу</a>
+    </div>
+</div>
+
+<div class="container" id="employerDashboard" style="display:none;">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showSection('vacancies', this)">📋 Управление вакансиями</button>
+        <button class="tab-btn" onclick="showSection('candidates', this)">👥 Отклики кандидатов (<span id="candCount">0</span>)</button>
+    </div>
+
+    <!-- Секция 1: Создание и список вакансий -->
+    <div id="sec-vacancies" class="layout">
+        <div class="card" style="height:fit-content;">
+            <h3 style="margin-bottom:16px;">Опубликовать новую вакансию</h3>
+            <div class="form-group"><label>Название должности</label><input type="text" id="vTitle" placeholder="Frontend-разработчик (React)"></div>
+            <div class="form-group"><label>Компания</label><input type="text" id="vCompany"></div>
+            <div class="form-group"><label>Категория</label><select id="vCategory"></select></div>
+            <div class="form-group"><label>Зарплата (сом)</label><input type="number" id="vSalary" placeholder="80000"></div>
+            <div class="form-group"><label>Город</label><input type="text" id="vCity" value="Бишкек"></div>
+            <div class="form-group">
+                <label>Формат работы</label>
+                <select id="vFormat">
+                    <option value="Офис">Офис</option>
+                    <option value="Удаленка">Удаленка</option>
+                    <option value="Гибрид">Гибрид</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Описание и требования</label><textarea id="vDesc" rows="4" placeholder="Обязанности, стек технологий, условия..."></textarea></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="publishVacancy()">Опубликовать вакансию</button>
         </div>
 
-        <!-- Секция управления созданными вакансиями и резюме -->
         <div>
-            <div class="card" style="margin-bottom: 20px;">
-                <h2>Мои активные вакансии</h2>
-                <div id="my-vacancies" class="item-list">Загрузка...</div>
-            </div>
-
-            <div class="card">
-                <h2>Доступные резюме соискателей</h2>
-                <div id="resumes-list" class="item-list">Загрузка...</div>
-            </div>
+            <h3 style="margin-bottom:14px;">Активные вакансии на портале</h3>
+            <div id="empVacanciesList">Загрузка...</div>
         </div>
     </div>
 
-    <script>
-        const API = 'https://shading-matcher-antitoxic.ngrok-free.dev/api';
+    <!-- Секция 2: Отклики кандидатов -->
+    <div id="sec-candidates" style="display:none;">
+        <h3 style="margin-bottom:16px;">Поступившие резюме кандидатов</h3>
+        <div id="candidatesList">Загрузка...</div>
+    </div>
+</div>
 
-        async function loadData() {
-            try {
-                // Вакансии
-                const vRes = await fetch(`${API}/vacancies`, { headers: { "ngrok-skip-browser-warning": "true" } });
-                const vData = await vRes.json();
-                document.getElementById('my-vacancies').innerHTML = vData.map(v => `
-                    <div class="item-card">
-                        <div>
-                            <strong>${v.title}</strong>
-                            <div style="font-size:12px; color:#666;">от ${v.salary_from ? v.salary_from.toLocaleString() : 0} сом/руб.</div>
-                        </div>
-                        <button class="btn-del" onclick="deleteVacancy(${v.id})">Удалить</button>
-                    </div>
-                `).join('');
+<div id="toast"></div>
 
-                // Резюме
-                const rRes = await fetch(`${API}/resumes`, { headers: { "ngrok-skip-browser-warning": "true" } });
-                const rData = await rRes.json();
-                document.getElementById('resumes-list').innerHTML = rData.map(r => `
-                    <div class="item-card">
-                        <div>
-                            <strong>${r.title}</strong>
-                            <div style="font-size:12px; color:#666;">Соискатель #${r.id}</div>
-                        </div>
-                        <button style="background:#28a745; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" onclick="alert('Контакты соискателя открыты!')">Посмотреть</button>
-                    </div>
-                `).join('');
-            } catch (err) {
-                console.error(err);
-            }
+<script>
+    const API_URL = "https://shading-matcher-antitoxic.ngrok-free.dev";
+    const HEADERS = { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" };
+    const currentUser = JSON.parse(localStorage.getItem("jp_user") || "null");
+
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.innerText = msg; t.style.display = "block";
+        setTimeout(() => t.style.display = "none", 3000);
+    }
+
+    if (!currentUser || currentUser.role !== "employer") {
+        document.getElementById("accessDenied").style.display = "block";
+    } else {
+        document.getElementById("employerDashboard").style.display = "block";
+        document.getElementById("empNameBadge").innerText = `🏢 ${currentUser.company_name || currentUser.full_name}`;
+        document.getElementById("vCompany").value = currentUser.company_name || "";
+        init();
+    }
+
+    async function init() {
+        await loadCategories();
+        await loadVacancies();
+        await loadCandidates();
+    }
+
+    async function loadCategories() {
+        const res = await fetch(`${API_URL}/api/categories`, { headers: HEADERS });
+        const cats = await res.json();
+        document.getElementById("vCategory").innerHTML = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+    }
+
+    async function loadVacancies() {
+        const res = await fetch(`${API_URL}/api/vacancies`, { headers: HEADERS });
+        const list = await res.json();
+        const box = document.getElementById("empVacanciesList");
+        box.innerHTML = list.map(v => `
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                <div>
+                    <div style="font-weight:700; font-size:16px;">${v.title}</div>
+                    <div style="font-size:13px; color:var(--muted);">${v.company_name} • ${v.city} (${v.work_format}) • <b>${Number(v.salary).toLocaleString()} сом</b></div>
+                </div>
+                <button class="btn btn-danger" onclick="deleteVacancy(${v.id})">Удалить</button>
+            </div>
+        `).join("");
+    }
+
+    async function publishVacancy() {
+        const payload = {
+            title: document.getElementById("vTitle").value.trim(),
+            company_name: document.getElementById("vCompany").value.trim(),
+            category_id: Number(document.getElementById("vCategory").value),
+            salary: Number(document.getElementById("vSalary").value),
+            city: document.getElementById("vCity").value.trim(),
+            work_format: document.getElementById("vFormat").value,
+            description: document.getElementById("vDesc").value.trim(),
+            employer_id: currentUser.id
+        };
+        if (!payload.title || !payload.salary) return showToast("Заполните название и зарплату");
+        const res = await fetch(`${API_URL}/api/vacancies`, { method: "POST", headers: HEADERS, body: JSON.stringify(payload) });
+        if (res.ok) {
+            showToast("Вакансия опубликована!");
+            document.getElementById("vTitle").value = "";
+            document.getElementById("vDesc").value = "";
+            loadVacancies();
         }
+    }
 
-        async function deleteVacancy(id) {
-            if (confirm('Удалить эту вакансию?')) {
-                await fetch(`${API}/vacancies/${id}`, { 
-                    method: 'DELETE',
-                    headers: { "ngrok-skip-browser-warning": "true" }
-                });
-                loadData();
-            }
-        }
+    async function deleteVacancy(id) {
+        await fetch(`${API_URL}/api/vacancies/${id}?employer_id=${currentUser.id}`, { method: "DELETE", headers: HEADERS });
+        showToast("Вакансия удалена");
+        loadVacancies();
+    }
 
-        document.getElementById('vacancy-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await fetch(`${API}/vacancies`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'ngrok-skip-browser-warning': 'true'
-                },
-                body: JSON.stringify({
-                    title: document.getElementById('title').value,
-                    category_id: parseInt(document.getElementById('category_id').value),
-                    salary_from: parseInt(document.getElementById('salary').value),
-                    description: document.getElementById('description').value
-                })
-            });
-            document.getElementById('vacancy-form').reset();
-            loadData();
+    async function loadCandidates() {
+        const res = await fetch(`${API_URL}/api/employers/${currentUser.id}/applications`, { headers: HEADERS });
+        const list = await res.json();
+        document.getElementById("candCount").innerText = list.length;
+        const box = document.getElementById("candidatesList");
+        if (!list.length) { box.innerHTML = "<p>Пока нет откликов на ваши вакансии.</p>"; return; }
+        box.innerHTML = list.map(c => `
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div>
+                        <span style="font-size:12px; color:var(--primary); font-weight:600;">Вакансия: ${c.vacancy_title}</span>
+                        <h4>${c.full_name} — ${c.resume_title || 'Соискатель'}</h4>
+                        <div style="font-size:13px; color:var(--muted);">📞 ${c.phone || 'Не указан'} | ✉️ ${c.email}</div>
+                    </div>
+                    <div>
+                        <span style="font-weight:700; font-size:13px;">Статус: ${c.status}</span>
+                    </div>
+                </div>
+                <div class="resume-box">
+                    <b>Навыки из профиля:</b> ${c.resume_skills || 'Не заполнены'}<br>
+                    <b>Сопроводительное письмо:</b> ${c.cover_letter || '—'}
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-success" onclick="setAppStatus(${c.id}, 'Приглашен')">✓ Пригласить на собеседование</button>
+                    <button class="btn btn-danger" onclick="setAppStatus(${c.id}, 'Отказ')">✕ Отклонить</button>
+                </div>
+            </div>
+        `).join("");
+    }
+
+    async function setAppStatus(appId, status) {
+        await fetch(`${API_URL}/api/applications/${appId}/status`, {
+            method: "PATCH", headers: HEADERS, body: JSON.stringify({ status })
         });
+        showToast(`Статус изменен на: ${status}`);
+        loadCandidates();
+    }
 
-        loadData();
-    </script>
+    function showSection(sec, btn) {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("sec-vacancies").style.display = sec === "vacancies" ? "grid" : "none";
+        document.getElementById("sec-candidates").style.display = sec === "candidates" ? "block" : "none";
+    }
+</script>
 </body>
 </html>

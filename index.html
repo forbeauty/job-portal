@@ -2,147 +2,535 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Поиск работы — Соискателям</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobPortal — Поиск работы и талантливых специалистов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: #f7f7f8; color: #222; }
-        header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; }
-        .nav-links { display: flex; gap: 10px; }
-        .nav-link { text-decoration: none; color: #333; font-size: 14px; padding: 8px 16px; border-radius: 20px; font-weight: 500; }
-        .nav-link.active { background: #000; color: #fff; }
-        .container { max-width: 1140px; margin: 0 auto; padding: 20px; }
-        .hero { background: #2b303a; color: white; padding: 30px 20px; border-radius: 12px; margin-bottom: 30px; }
-        .stats-counter { display: flex; gap: 30px; margin-top: 15px; }
-        .stat-num { font-size: 22px; font-weight: bold; color: #4da1ff; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); line-height: 1.5; }
         
-        .grid-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 30px; }
-        .cat-card { background: #fff; padding: 16px; border-radius: 10px; border: 1px solid #eef0f2; cursor: pointer; transition: all 0.2s ease; }
-        .cat-card:hover { border-color: #0070fb; transform: translateY(-2px); }
-        .cat-card.selected { border: 2px solid #0070fb; background: #eef6ff; }
-        
-        .vacancies-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .btn-reset { background: #e0e0e0; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: none; }
-        
-        .vacancies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-        .vac-card { background: #fff; border-radius: 10px; padding: 20px; border: 1px solid #eef0f2; display: flex; flex-direction: column; justify-content: space-between; }
-        .vac-title { font-size: 18px; font-weight: 700; color: #0070fb; text-decoration: none; }
-        .btn-apply { background: #2e7d32; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: 600; }
+        /* Шапка */
+        header {
+            background: var(--card); border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100; padding: 14px 24px;
+        }
+        .nav-container {
+            max-width: 1200px; margin: 0 auto; display: flex;
+            justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+        }
+        .logo { font-size: 22px; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .nav-links { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .btn {
+            padding: 9px 16px; border-radius: 8px; border: none; font-weight: 500;
+            cursor: pointer; font-size: 14px; transition: 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-success { background: var(--success); color: white; }
+        .user-badge { background: #eff6ff; color: var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+        /* Hero секция */
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white; padding: 48px 24px; text-align: center;
+        }
+        .hero h1 { font-size: 34px; margin-bottom: 12px; font-weight: 700; }
+        .hero p { color: #dbeafe; max-width: 600px; margin: 0 auto 28px; }
+        .stats-bar { display: flex; justify-content: center; gap: 32px; margin-bottom: 28px; flex-wrap: wrap; }
+        .stat-item span { display: block; font-size: 26px; font-weight: 700; }
+        .stat-item small { color: #bfdbfe; font-size: 13px; }
+
+        /* Поиск и фильтры */
+        .search-box {
+            max-width: 960px; margin: 0 auto; background: white; padding: 12px;
+            border-radius: 12px; display: grid; grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+        .search-box input, .search-box select {
+            padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none;
+        }
+        @media (max-width: 768px) { .search-box { grid-template-columns: 1fr; } }
+
+        /* Основной контент */
+        .container { max-width: 1200px; margin: 32px auto; padding: 0 24px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; flex-wrap: wrap; }
+        .tab-btn { background: none; border: none; padding: 8px 16px; font-size: 15px; font-weight: 600; color: var(--muted); cursor: pointer; border-radius: 8px; }
+        .tab-btn.active { background: #eff6ff; color: var(--primary); }
+
+        /* Категории */
+        .categories { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+        .cat-chip {
+            padding: 7px 14px; background: white; border: 1px solid var(--border);
+            border-radius: 20px; font-size: 13px; cursor: pointer; transition: 0.2s;
+        }
+        .cat-chip.active, .cat-chip:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Карточки вакансий */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 22px; display: flex; flex-direction: column; justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+        .vac-title { font-size: 18px; font-weight: 700; color: var(--text); }
+        .salary { font-size: 17px; font-weight: 700; color: var(--success); margin-bottom: 8px; }
+        .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+        .badge { background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+        .badge-blue { background: #eff6ff; color: var(--primary); }
+        .desc { font-size: 14px; color: var(--muted); margin-bottom: 18px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-footer { display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 14px; }
+
+        /* Модальные окна */
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px;
+        }
+        .modal {
+            background: white; border-radius: 14px; max-width: 460px; width: 100%;
+            padding: 26px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
+        }
+        .modal h2 { margin-bottom: 16px; font-size: 20px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px;
+        }
+        .status-pill { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .status-wait { background: #fef3c7; color: #b45309; }
+        .status-ok { background: #d1fae5; color: #065f46; }
+        .status-no { background: #fee2e2; color: #991b1b; }
+
+        /* Уведомления Toast */
+        #toast {
+            position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: white;
+            padding: 12px 20px; border-radius: 10px; font-size: 14px; display: none; z-index: 2000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <div style="display:flex; align-items:center;">
-            <nav class="nav-links">
-                <a href="index.html" class="nav-link active">Ищу работу</a>
-                <a href="employer.html" class="nav-link">Ищу сотрудника</a>
-            </nav>
+<header>
+    <div class="nav-container">
+        <a href="index.html" class="logo">💼 JobPortal</a>
+        <div class="nav-links" id="navAuthArea">
+            <!-- Заполняется через JS -->
         </div>
-        <div>
-            <a href="employer.html" style="text-decoration:none; color:#0070fb; font-weight:600;">Разместить вакансию ➔</a>
-        </div>
-    </header>
+    </div>
+</header>
 
-    <div class="container">
-        <div class="hero">
-            <h1>Поиск работы по всей стране</h1>
-            <div class="stats-counter">
-                <div><div id="stat-vacancies" class="stat-num">0</div> вакансий</div>
-                <div><div id="stat-companies" class="stat-num">0</div> компаний</div>
-            </div>
-        </div>
+<section class="hero">
+    <h1>Найдите работу своей мечты</h1>
+    <p>Актуальные вакансии от проверенных компаний с мгновенным откликом в один клик</p>
+    <div class="stats-bar">
+        <div class="stat-item"><span id="statVacancies">0</span><small>Активных вакансий</small></div>
+        <div class="stat-item"><span id="statCompanies">0</span><small>Компаний</small></div>
+        <div class="stat-item"><span id="statApps">0</span><small>Отправлено откликов</small></div>
+    </div>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Должность или ключевое слово (например, Python)...">
+        <input type="number" id="salaryInput" placeholder="Зарплата от (сом)">
+        <select id="formatInput">
+            <option value="">Любой формат</option>
+            <option value="Офис">Офис</option>
+            <option value="Удаленка">Удаленка</option>
+            <option value="Гибрид">Гибрид</option>
+        </select>
+        <button class="btn btn-primary" onclick="loadVacancies()">Найти</button>
+    </div>
+</section>
 
-        <h2 style="margin-bottom:15px;">Выберите категорию</h2>
-        <div id="categories" class="grid-categories">Загрузка...</div>
-
-        <div class="vacancies-header">
-            <h2 id="vacancies-title">Свежие вакансии</h2>
-            <button id="reset-btn" class="btn-reset" onclick="filterByCategory(null)">Сбросить фильтр ✖</button>
-        </div>
-        
-        <div id="vacancies" class="vacancies-grid">Загрузка вакансий...</div>
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('all', this)">Все вакансии</button>
+        <button class="tab-btn" onclick="switchTab('fav', this)">⭐ Избранное (<span id="favCount">0</span>)</button>
+        <button class="tab-btn" id="myAppsTabBtn" style="display:none;" onclick="switchTab('apps', this)">📩 Мои отклики</button>
+        <button class="tab-btn" id="myProfileTabBtn" style="display:none;" onclick="switchTab('profile', this)">👤 Моё резюме</button>
     </div>
 
-    <script>
-        const API = 'https://shading-matcher-antitoxic.ngrok-free.dev/api';
-        let currentCategoryId = null;
+    <!-- Вкладка: Все вакансии -->
+    <div id="tab-all">
+        <div class="categories" id="categoriesList"></div>
+        <div class="grid" id="vacanciesGrid">Загрузка вакансий...</div>
+    </div>
 
-        async function init() {
-            try {
-                // Загрузка статистики
-                const sRes = await fetch(`${API}/stats`, { headers: { "ngrok-skip-browser-warning": "true" } });
-                const sData = await sRes.json();
-                document.getElementById('stat-vacancies').innerText = sData.vacancies;
-                document.getElementById('stat-companies').innerText = sData.companies;
+    <!-- Вкладка: Избранное -->
+    <div id="tab-fav" style="display:none;">
+        <div class="grid" id="favGrid"></div>
+    </div>
 
-                // Загрузка категорий
-                const cRes = await fetch(`${API}/categories`, { headers: { "ngrok-skip-browser-warning": "true" } });
-                const cData = await cRes.json();
-                document.getElementById('categories').innerHTML = cData.map(c => `
-                    <div class="cat-card" id="cat-${c.id}" onclick="filterByCategory(${c.id}, '${c.name}')">
-                        <h4>${c.name}</h4>
-                        <div style="font-size:13px; color:#777; margin-top:4px;">${c.vacancy_count} вакансий</div>
-                    </div>
-                `).join('');
+    <!-- Вкладка: Мои отклики соискателя -->
+    <div id="tab-apps" style="display:none;">
+        <div class="grid" id="myAppsGrid"></div>
+    </div>
 
-                // Первоначальная загрузка всех вакансий
-                loadVacancies();
-            } catch (err) {
-                console.error(err);
-            }
-        }
+    <!-- Вкладка: Профиль и резюме соискателя -->
+    <div id="tab-profile" style="display:none; max-width: 550px;">
+        <div class="card">
+            <h3 style="margin-bottom:14px;">Данные вашего резюме</h3>
+            <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">Эти данные автоматически прикрепляются, когда вы нажимаете «Откликнуться» на любую вакансию.</p>
+            <div class="form-group"><label>ФИО</label><input type="text" id="profName"></div>
+            <div class="form-group"><label>Телефон / Telegram</label><input type="text" id="profPhone"></div>
+            <div class="form-group"><label>Желаемая должность</label><input type="text" id="profTitle" placeholder="Например: Frontend-разработчик"></div>
+            <div class="form-group"><label>Навыки и опыт</label><textarea id="profSkills" rows="4" placeholder="Опишите ваш стек, опыт работы и образование..."></textarea></div>
+            <button class="btn btn-primary" onclick="saveProfile()">Сохранить резюме</button>
+        </div>
+    </div>
+</div>
 
-        async function loadVacancies(categoryId = null) {
-            const container = document.getElementById('vacancies');
-            container.innerHTML = 'Загрузка вакансий...';
+<!-- Модальное окно Входа / Регистрации -->
+<div class="modal-backdrop" id="authModal">
+    <div class="modal">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h2 id="authModalTitle" style="margin:0;">Вход в аккаунт</h2>
+            <button class="btn btn-outline" onclick="closeModal('authModal')">✕</button>
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:16px;">
+            <button class="btn btn-primary" id="modeLoginBtn" onclick="setAuthMode('login')" style="flex:1;">Вход</button>
+            <button class="btn btn-outline" id="modeRegBtn" onclick="setAuthMode('register')" style="flex:1;">Регистрация</button>
+        </div>
+        <div id="regFields" style="display:none;">
+            <div class="form-group">
+                <label>Тип аккаунта</label>
+                <select id="regRole" onchange="toggleRoleFields()">
+                    <option value="seeker">Я ищу работу (Соискатель)</option>
+                    <option value="employer">Я ищу сотрудников (Работодатель)</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Ваше ФИО</label><input type="text" id="regName" placeholder="Азамат Исаков"></div>
+            <div class="form-group"><label>Телефон или Telegram</label><input type="text" id="regPhone" placeholder="+996 555 00-00-00"></div>
+            <div class="form-group" id="regCompanyGroup" style="display:none;">
+                <label>Название вашей компании</label><input type="text" id="regCompany" placeholder="ОсОО ТехноСофт">
+            </div>
+            <div id="regSeekerGroup">
+                <div class="form-group"><label>Желаемая должность</label><input type="text" id="regResumeTitle" placeholder="Python Backend Developer"></div>
+                <div class="form-group"><label>Ключевые навыки</label><textarea id="regResumeSkills" rows="2" placeholder="Python, SQL, FastAPI..."></textarea></div>
+            </div>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" id="authEmail" placeholder="ivan@mail.ru"></div>
+        <div class="form-group"><label>Пароль</label><input type="password" id="authPassword" placeholder="1234"></div>
+        <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="submitAuth()">Продолжить</button>
+        <p style="font-size:12px; color:var(--muted); margin-top:12px; text-align:center;">
+            Тест для демо: <b>ivan@mail.ru</b> / <b>1234</b> (соискатель) или <b>hr@techcorp.kg</b> / <b>1234</b> (работодатель)
+        </p>
+    </div>
+</div>
 
-            let url = `${API}/vacancies`;
-            if (categoryId) {
-                url += `?category_id=${categoryId}`;
-            }
+<!-- Модальное окно Отклика -->
+<div class="modal-backdrop" id="applyModal">
+    <div class="modal">
+        <h2>Отклик на вакансию</h2>
+        <p id="applyVacTitle" style="font-weight:600; color:var(--primary); margin-bottom:12px;"></p>
+        <div style="background:#f8fafc; padding:12px; border-radius:8px; font-size:13px; margin-bottom:14px; border:1px solid var(--border);">
+            <b>Будут отправлены данные вашего профиля:</b>
+            <div id="applyPreviewData" style="margin-top:6px; color:var(--muted);"></div>
+        </div>
+        <div class="form-group">
+            <label>Сопроводительное письмо (необязательно)</label>
+            <textarea id="applyCoverLetter" rows="3" placeholder="Здравствуйте! Меня заинтересовала ваша вакансия..."></textarea>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="confirmApply()">Отправить отклик</button>
+            <button class="btn btn-outline" onclick="closeModal('applyModal')">Отмена</button>
+        </div>
+    </div>
+</div>
 
-            const vRes = await fetch(url, { headers: { "ngrok-skip-browser-warning": "true" } });
-            const vData = await vRes.json();
+<div id="toast"></div>
 
-            if (!vData || vData.length === 0) {
-                container.innerHTML = '<p style="grid-column: 1/-1; color:#777;">В этой категории пока нет опубликованных вакансий.</p>';
-                return;
-            }
+<script>
+    const API_URL = "https://shading-matcher-antitoxic.ngrok-free.dev";
+    const HEADERS = { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" };
 
-            container.innerHTML = vData.map(v => `
-                <div class="vac-card">
-                    <div>
-                        <a href="#" class="vac-title">${v.title}</a>
-                        <div style="color:#666; font-size:13px; margin:4px 0;">${v.company_name || 'Компания'}</div>
-                        <div style="font-weight:bold; margin-bottom:8px;">от ${v.salary_from ? v.salary_from.toLocaleString() : 0} сом/руб.</div>
-                        <p style="font-size:14px; color:#444;">${v.description}</p>
-                    </div>
-                    <button class="btn-apply" onclick="alert('Отклик отправлен работодателю!')">Откликнуться</button>
-                </div>
-            `).join('');
-        }
+    let currentUser = JSON.parse(localStorage.getItem("jp_user") || "null");
+    let favorites = JSON.parse(localStorage.getItem("jp_favs") || "[]");
+    let allVacanciesCache = [];
+    let selectedCategory = null;
+    let authMode = "login";
+    let applyingVacancyId = null;
 
-        function filterByCategory(id, name = '') {
-            document.querySelectorAll('.cat-card').forEach(el => el.classList.remove('selected'));
-            
-            const resetBtn = document.getElementById('reset-btn');
-            const titleEl = document.getElementById('vacancies-title');
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.innerText = msg; t.style.display = "block";
+        setTimeout(() => t.style.display = "none", 3500);
+    }
 
-            if (id) {
-                currentCategoryId = id;
-                document.getElementById(`cat-${id}`).classList.add('selected');
-                titleEl.innerText = `Вакансии в категории: ${name}`;
-                resetBtn.style.display = 'inline-block';
-                loadVacancies(id);
+    function updateNavUI() {
+        const area = document.getElementById("navAuthArea");
+        document.getElementById("favCount").innerText = favorites.length;
+        if (currentUser) {
+            let roleControls = "";
+            if (currentUser.role === "employer") {
+                roleControls = `<a href="employer.html" class="btn btn-primary">🏢 Кабинет работодателя</a>`;
+                document.getElementById("myAppsTabBtn").style.display = "none";
+                document.getElementById("myProfileTabBtn").style.display = "none";
             } else {
-                currentCategoryId = null;
-                titleEl.innerText = 'Свежие вакансии';
-                resetBtn.style.display = 'none';
-                loadVacancies();
+                document.getElementById("myAppsTabBtn").style.display = "inline-block";
+                document.getElementById("myProfileTabBtn").style.display = "inline-block";
+                document.getElementById("profName").value = currentUser.full_name || "";
+                document.getElementById("profPhone").value = currentUser.phone || "";
+                document.getElementById("profTitle").value = currentUser.resume_title || "";
+                document.getElementById("profSkills").value = currentUser.resume_skills || "";
             }
+            area.innerHTML = `
+                <span class="user-badge">${currentUser.role === 'employer' ? '🏢' : '👤'} ${currentUser.full_name}</span>
+                ${roleControls}
+                <button class="btn btn-outline" onclick="logout()">Выйти</button>
+            `;
+        } else {
+            document.getElementById("myAppsTabBtn").style.display = "none";
+            document.getElementById("myProfileTabBtn").style.display = "none";
+            area.innerHTML = `
+                <button class="btn btn-outline" onclick="openAuthModal('login')">Войти</button>
+                <button class="btn btn-primary" onclick="openAuthModal('register')">Регистрация</button>
+            `;
         }
+    }
 
-        init();
-    </script>
+    function openAuthModal(mode) {
+        setAuthMode(mode);
+        document.getElementById("authModal").style.display = "flex";
+    }
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
+
+    function setAuthMode(mode) {
+        authMode = mode;
+        document.getElementById("authModalTitle").innerText = mode === "login" ? "Вход в аккаунт" : "Создание аккаунта";
+        document.getElementById("regFields").style.display = mode === "register" ? "block" : "none";
+        document.getElementById("modeLoginBtn").className = mode === "login" ? "btn btn-primary" : "btn btn-outline";
+        document.getElementById("modeRegBtn").className = mode === "register" ? "btn btn-primary" : "btn btn-outline";
+    }
+
+    function toggleRoleFields() {
+        const role = document.getElementById("regRole").value;
+        document.getElementById("regCompanyGroup").style.display = role === "employer" ? "block" : "none";
+        document.getElementById("regSeekerGroup").style.display = role === "seeker" ? "block" : "none";
+    }
+
+    async function submitAuth() {
+        const email = document.getElementById("authEmail").value.trim();
+        const password = document.getElementById("authPassword").value.trim();
+        if (!email || !password) return showToast("Введите email и пароль");
+
+        const endpoint = authMode === "login" ? "/api/login" : "/api/register";
+        const payload = authMode === "login" ? { email, password } : {
+            email, password,
+            role: document.getElementById("regRole").value,
+            full_name: document.getElementById("regName").value.trim(),
+            phone: document.getElementById("regPhone").value.trim(),
+            company_name: document.getElementById("regCompany").value.trim(),
+            resume_title: document.getElementById("regResumeTitle").value.trim(),
+            resume_skills: document.getElementById("regResumeSkills").value.trim()
+        };
+
+        try {
+            const res = await fetch(API_URL + endpoint, { method: "POST", headers: HEADERS, body: JSON.stringify(payload) });
+            const data = await res.json();
+            if (!res.ok) return showToast(data.detail || "Ошибка авторизации");
+            currentUser = data;
+            localStorage.setItem("jp_user", JSON.stringify(currentUser));
+            closeModal("authModal");
+            updateNavUI();
+            loadVacancies();
+            showToast(`Добро пожаловать, ${currentUser.full_name}!`);
+        } catch (e) { showToast("Нет связи с сервером"); }
+    }
+
+    function logout() {
+        currentUser = null;
+        localStorage.removeItem("jp_user");
+        updateNavUI();
+        switchTab("all", document.querySelector(".tab-btn"));
+        showToast("Вы вышли из аккаунта");
+    }
+
+    async function saveProfile() {
+        const payload = {
+            full_name: document.getElementById("profName").value,
+            phone: document.getElementById("profPhone").value,
+            resume_title: document.getElementById("profTitle").value,
+            resume_skills: document.getElementById("profSkills").value,
+            company_name: ""
+        };
+        const res = await fetch(`${API_URL}/api/users/${currentUser.id}`, { method: "PUT", headers: HEADERS, body: JSON.stringify(payload) });
+        if (res.ok) {
+            currentUser = await res.json();
+            localStorage.setItem("jp_user", JSON.stringify(currentUser));
+            updateNavUI();
+            showToast("Резюме успешно обновлено!");
+        }
+    }
+
+    async function loadStats() {
+        try {
+            const res = await fetch(`${API_URL}/api/stats`, { headers: HEADERS });
+            const data = await res.json();
+            document.getElementById("statVacancies").innerText = data.vacancies;
+            document.getElementById("statCompanies").innerText = data.companies;
+            document.getElementById("statApps").innerText = data.applications;
+        } catch (e) {}
+    }
+
+    async function loadCategories() {
+        try {
+            const res = await fetch(`${API_URL}/api/categories`, { headers: HEADERS });
+            const cats = await res.json();
+            const box = document.getElementById("categoriesList");
+            box.innerHTML = `<div class="cat-chip ${selectedCategory === null ? 'active' : ''}" onclick="selectCat(null)">Все сферы</div>`;
+            cats.forEach(c => {
+                box.innerHTML += `<div class="cat-chip ${selectedCategory === c.id ? 'active' : ''}" onclick="selectCat(${c.id})">${c.name}</div>`;
+            });
+        } catch (e) {}
+    }
+
+    function selectCat(id) {
+        selectedCategory = id;
+        loadCategories();
+        loadVacancies();
+    }
+
+    async function loadVacancies() {
+        const params = new URLSearchParams();
+        if (selectedCategory) params.append("category_id", selectedCategory);
+        const search = document.getElementById("searchInput").value.trim();
+        const salary = document.getElementById("salaryInput").value.trim();
+        const format = document.getElementById("formatInput").value;
+        if (search) params.append("search", search);
+        if (salary) params.append("min_salary", salary);
+        if (format) params.append("work_format", format);
+
+        try {
+            const res = await fetch(`${API_URL}/api/vacancies?${params.toString()}`, { headers: HEADERS });
+            allVacanciesCache = await res.json();
+            renderVacancies(allVacanciesCache, "vacanciesGrid");
+        } catch (e) {
+            document.getElementById("vacanciesGrid").innerHTML = "<p>Сервер недоступен. Проверьте запуск FastAPI и ngrok.</p>";
+        }
+    }
+
+    function renderVacancies(list, targetId) {
+        const grid = document.getElementById(targetId);
+        if (!list.length) { grid.innerHTML = "<p style='color:var(--muted)'>Вакансии не найдены.</p>"; return; }
+        grid.innerHTML = list.map(v => {
+            const isFav = favorites.includes(v.id);
+            return `
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="vac-title">${v.title}</div>
+                        <button class="btn btn-outline" style="padding:5px 10px;" onclick="toggleFav(${v.id})">${isFav ? '⭐' : '☆'}</button>
+                    </div>
+                    <div class="salary">${Number(v.salary).toLocaleString()} сом</div>
+                    <div class="badges">
+                        <span class="badge badge-blue">🏢 ${v.company_name || 'Компания'}</span>
+                        <span class="badge">📍 ${v.city}</span>
+                        <span class="badge">💻 ${v.work_format || 'Офис'}</span>
+                    </div>
+                    <p class="desc">${v.description}</p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="openApplyModal(${v.id}, '${v.title.replace(/'/g, "\\'")}')">Откликнуться</button>
+                </div>
+            </div>`;
+        }).join("");
+    }
+
+    function toggleFav(id) {
+        if (favorites.includes(id)) favorites = favorites.filter(x => x !== id);
+        else favorites.push(id);
+        localStorage.setItem("jp_favs", JSON.stringify(favorites));
+        document.getElementById("favCount").innerText = favorites.length;
+        renderVacancies(allVacanciesCache, "vacanciesGrid");
+        renderFavs();
+    }
+
+    function renderFavs() {
+        const list = allVacanciesCache.filter(v => favorites.includes(v.id));
+        renderVacancies(list, "favGrid");
+    }
+
+    function openApplyModal(vacId, vacTitle) {
+        if (!currentUser) {
+            showToast("Войдите или зарегистрируйтесь как соискатель, чтобы откликнуться");
+            return openAuthModal("login");
+        }
+        if (currentUser.role !== "seeker") {
+            return showToast("Вы вошли как работодатель. Для откликов нужен аккаунт соискателя.");
+        }
+        applyingVacancyId = vacId;
+        document.getElementById("applyVacTitle").innerText = vacTitle;
+        document.getElementById("applyPreviewData").innerHTML = `
+            ФИО: <b>${currentUser.full_name}</b><br>
+            Контакты: <b>${currentUser.phone || currentUser.email}</b><br>
+            Должность: <b>${currentUser.resume_title || 'Не указана'}</b><br>
+            Навыки: ${currentUser.resume_skills || 'Не заполнены'}
+        `;
+        document.getElementById("applyModal").style.display = "flex";
+    }
+
+    async function confirmApply() {
+        const cover = document.getElementById("applyCoverLetter").value;
+        const res = await fetch(`${API_URL}/api/applications`, {
+            method: "POST", headers: HEADERS,
+            body: JSON.stringify({ vacancy_id: applyingVacancyId, seeker_id: currentUser.id, cover_letter: cover })
+        });
+        const data = await res.json();
+        closeModal("applyModal");
+        if (!res.ok) return showToast(data.detail || "Ошибка отправки");
+        showToast(data.message);
+        loadStats();
+    }
+
+    async function loadMyApplications() {
+        if (!currentUser) return;
+        const res = await fetch(`${API_URL}/api/seekers/${currentUser.id}/applications`, { headers: HEADERS });
+        const list = await res.json();
+        const grid = document.getElementById("myAppsGrid");
+        if (!list.length) { grid.innerHTML = "<p>Вы еще не отправляли отклики.</p>"; return; }
+        grid.innerHTML = list.map(a => {
+            let stClass = a.status === "Приглашен" ? "status-ok" : (a.status === "Отказ" ? "status-no" : "status-wait");
+            return `
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="vac-title">${a.vacancy_title}</div>
+                        <span class="status-pill ${stClass}">${a.status}</span>
+                    </div>
+                    <div class="salary">${Number(a.salary).toLocaleString()} сом</div>
+                    <div class="badges"><span class="badge">🏢 ${a.company_name}</span><span class="badge">📍 ${a.city}</span></div>
+                    <p style="font-size:13px; color:var(--muted);">Ваше письмо: ${a.cover_letter || 'Без сопроводительного письма'}</p>
+                </div>
+            </div>`;
+        }).join("");
+    }
+
+    function switchTab(tab, btn) {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+        ["all", "fav", "apps", "profile"].forEach(t => document.getElementById("tab-" + t).style.display = (t === tab ? "block" : "none"));
+        if (tab === "fav") renderFavs();
+        if (tab === "apps") loadMyApplications();
+    }
+
+    updateNavUI();
+    loadStats();
+    loadCategories();
+    loadVacancies();
+</script>
 </body>
 </html>
